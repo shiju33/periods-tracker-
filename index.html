@@ -1,0 +1,762 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Conception Planner</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one 720px column. A live answer card sits on top; three tabs below hold the inputs (My cycle, Semen test) and the Advice list. */
+:root{
+  --bg:#F1F5F6;--surface:#FFFFFF;--surface-2:#E7EEF0;--fg:#122029;--muted:#55666F;--line:#D3DEE2;
+  --accent:#12697F;--accent-ink:#FFFFFF;
+  --period:#A82D54;--period-bg:#F5DAE3;
+  --fertile:#1F7A58;--fertile-bg:#DCEFE6;
+  --best:#0E6B4F;--best-ink:#FFFFFF;
+  --ovul:#B2700A;
+  --warn:#8A5200;--warn-bg:#FBEACB;
+  --bad:#A02B27;--bad-bg:#F8DAD8;
+  --ok:#1B6E4C;--ok-bg:#D8EEE3;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D161B;--surface:#152128;--surface-2:#1C2B33;--fg:#E5EEF1;--muted:#95A7B0;--line:#29393F;
+    --accent:#5DBAD4;--accent-ink:#06222B;
+    --period:#F08AA9;--period-bg:#43202D;
+    --fertile:#5CC79F;--fertile-bg:#173A2E;
+    --best:#58CFA2;--best-ink:#04261A;
+    --ovul:#E8B04A;
+    --warn:#E8B04A;--warn-bg:#3A2D10;
+    --bad:#F2918D;--bad-bg:#40201F;
+    --ok:#6FD3A6;--ok-bg:#173A2E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D161B;--surface:#152128;--surface-2:#1C2B33;--fg:#E5EEF1;--muted:#95A7B0;--line:#29393F;
+  --accent:#5DBAD4;--accent-ink:#06222B;
+  --period:#F08AA9;--period-bg:#43202D;
+  --fertile:#5CC79F;--fertile-bg:#173A2E;
+  --best:#58CFA2;--best-ink:#04261A;
+  --ovul:#E8B04A;
+  --warn:#E8B04A;--warn-bg:#3A2D10;
+  --bad:#F2918D;--bad-bg:#40201F;
+  --ok:#6FD3A6;--ok-bg:#173A2E;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:20px 56px}
+.wrap{max-width:720px;margin-inline:auto;display:grid;gap:16px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:30px;font-weight:700;letter-spacing:-0.01em}
+h2{font-size:21px;font-weight:650}
+h3{font-size:17px;font-weight:650}
+p{margin:0}
+.sub{color:var(--muted);margin-top:6px;max-width:60ch}
+.muted{color:var(--muted)}
+.label{font:600 12px/1.2 var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.note{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:10px 14px;font-size:14px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}
+.answer{display:grid;gap:14px}
+.eyebrow-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;background:var(--surface-2);color:var(--muted)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}
+.pill.warn{background:var(--warn-bg);color:var(--warn)}
+.pill.ex{background:var(--warn-bg);color:var(--warn)}
+.big{font:700 clamp(30px,8vw,46px)/1.05 var(--f-display);letter-spacing:-0.02em;color:var(--best)}
+.status{font-size:16px;font-weight:500}
+.banner{border-radius:10px;padding:12px 14px;display:grid;gap:2px}
+.banner.warn{background:var(--warn-bg);color:var(--warn)}
+.banner strong{font-weight:650}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px;margin:0;padding-top:14px;border-top:1px solid var(--line)}
+.facts div{min-width:0}
+.facts dt{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.facts dd{margin:2px 0 0;font:500 15px/1.35 var(--f-mono)}
+.chart{display:grid;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
+.bars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;margin-top:6px}
+.bar{display:grid;gap:4px;justify-items:center;min-width:0}
+.bar .v{font:500 12px var(--f-mono)}
+.bar .col{width:100%;border-radius:6px 6px 2px 2px;background:var(--fertile-bg);border:1px solid var(--fertile)}
+.bar.best .col{background:var(--best);border-color:var(--best)}
+.bar .d{display:grid;justify-items:center;font:500 12px/1.2 var(--f-mono)}
+.bar .d span:last-child{color:var(--muted);font-weight:400;font-size:11px}
+.caption{font-size:12.5px;color:var(--muted);max-width:62ch}
+.semrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--line)}
+.linkbtn{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface-2);padding:5px;border-radius:12px}
+.tab{border:0;background:transparent;color:var(--muted);font:600 14px var(--f-body);padding:11px 6px;border-radius:8px;cursor:pointer;min-height:44px}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+.panel{display:grid;gap:18px;min-width:0}
+
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.field{display:grid;gap:5px;min-width:0;align-content:start}
+.field label{font-weight:600;font-size:14px}
+input[type=date],input[type=number],select{height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--fg);font:inherit;padding:0 12px;width:100%;min-width:0}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.hint{font-size:12.5px;color:var(--muted)}
+.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:12.5px}
+.stat{font-weight:600}
+.stat.ok{color:var(--ok)}.stat.low{color:var(--bad)}.stat.invalid{color:var(--warn)}
+details{border-top:1px solid var(--line);padding-top:12px}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+.more{display:grid;gap:14px;margin-top:12px}
+.check{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:600 15px var(--f-body);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+
+.notes{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.notes li{border-radius:8px;padding:9px 12px;font-size:14px;background:var(--surface-2)}
+.notes li.ok{background:var(--ok-bg);color:var(--ok)}
+.notes li.warn{background:var(--warn-bg);color:var(--warn)}
+
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cal-head h3{text-align:center;flex:1}
+.iconbtn{width:44px;height:44px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:600 18px var(--f-body);cursor:pointer}
+.iconbtn[disabled]{opacity:.35;cursor:not-allowed}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow{text-align:center;font:600 11px var(--f-body);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-bottom:2px}
+.day{position:relative;min-height:44px;border-radius:6px;display:grid;place-items:center;font:500 14px var(--f-mono);background:var(--surface-2);min-width:0}
+.day.blank{background:transparent}
+.day.period{background:var(--period-bg);color:var(--period)}
+.day.fertile{background:var(--fertile-bg);color:var(--fertile)}
+.day.best{background:var(--best);color:var(--best-ink);font-weight:600}
+.day.ov::after{content:"";position:absolute;bottom:5px;width:6px;height:6px;border-radius:50%;background:var(--ovul)}
+.day.best.ov::after{background:var(--best-ink)}
+.day.today{outline:2px solid var(--accent);outline-offset:-2px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+.sw.period{background:var(--period-bg);border:1px solid var(--period)}
+.sw.fertile{background:var(--fertile-bg);border:1px solid var(--fertile)}
+.sw.best{background:var(--best)}
+.sw.ov{background:var(--ovul);border-radius:50%;width:9px;height:9px}
+.sw.today{border:2px solid var(--accent)}
+
+.summary{border-radius:10px;padding:14px;display:grid;gap:6px;background:var(--surface-2)}
+.summary.ok{background:var(--ok-bg);color:var(--ok)}
+.summary.low{background:var(--warn-bg);color:var(--warn)}
+.summary ul{margin:4px 0 0;padding-left:18px}
+.photo{display:grid;gap:14px;border-top:1px solid var(--line);padding-top:18px}
+.photo-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.photo-row .field{flex:1 1 180px}
+.prev{max-width:100%;max-height:260px;border-radius:10px;border:1px solid var(--line);object-fit:contain;justify-self:start}
+.result{display:grid;gap:10px}
+.obs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin:0}
+.obs dt{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.obs dd{margin:2px 0 0;font-weight:600}
+
+.adv{display:grid;gap:10px}
+.adv ul{margin:0;padding-left:20px;display:grid;gap:8px}
+.disc{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (max-width:420px){.card{padding:16px}.bars{gap:4px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<main class="wrap">
+  <header>
+    <h1>Conception Planner</h1>
+    <p class="sub">Enter your period dates and semen report. Get the best days to have sex when trying for a baby.</p>
+  </header>
+
+  <div id="exNote" class="note" hidden></div>
+
+  <section id="answer" class="card answer" aria-live="polite"></section>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="tab-cycle" data-tab="cycle" aria-controls="panel-cycle" aria-selected="true">My cycle</button>
+    <button class="tab" role="tab" id="tab-semen" data-tab="semen" aria-controls="panel-semen" aria-selected="false" tabindex="-1">Semen test</button>
+    <button class="tab" role="tab" id="tab-advice" data-tab="advice" aria-controls="panel-advice" aria-selected="false" tabindex="-1">Advice</button>
+  </div>
+
+  <section id="panel-cycle" class="card panel" role="tabpanel" aria-labelledby="tab-cycle">
+    <h2>Your cycle</h2>
+    <div class="form">
+      <div class="field">
+        <label for="f_last">First day of your last period</label>
+        <input id="f_last" type="date">
+      </div>
+      <div class="field">
+        <label for="f_L">Usual cycle length (days)</label>
+        <input id="f_L" type="number" inputmode="numeric" min="18" max="60" step="1">
+        <span class="hint">First day of one period to the first day of the next.</span>
+      </div>
+      <div class="field">
+        <label for="f_P">Days of bleeding</label>
+        <input id="f_P" type="number" inputmode="numeric" min="1" max="12" step="1">
+      </div>
+    </div>
+    <details>
+      <summary>More options</summary>
+      <div class="more">
+        <div class="form">
+          <div class="field">
+            <label for="f_lh">Date of positive ovulation (LH) strip</label>
+            <input id="f_lh" type="date">
+            <span class="hint">Optional. Makes the dates for this cycle more exact.</span>
+          </div>
+          <div class="field">
+            <label for="f_luteal">Days from ovulation to next period</label>
+            <input id="f_luteal" type="number" inputmode="numeric" min="10" max="16" step="1">
+            <span class="hint">Usually 12 to 16. Most people use 14.</span>
+          </div>
+        </div>
+        <div class="check">
+          <input id="f_irr" type="checkbox">
+          <label for="f_irr">My cycle length changes from month to month</label>
+        </div>
+        <div id="irrBox" class="form" hidden>
+          <div class="field">
+            <label for="f_minL">Shortest cycle (days)</label>
+            <input id="f_minL" type="number" inputmode="numeric" min="18" max="60" step="1">
+          </div>
+          <div class="field">
+            <label for="f_maxL">Longest cycle (days)</label>
+            <input id="f_maxL" type="number" inputmode="numeric" min="18" max="60" step="1">
+          </div>
+        </div>
+      </div>
+    </details>
+    <p id="cycleMsg" class="hint" hidden></p>
+    <ul id="cycleNotes" class="notes"></ul>
+
+    <div class="cal-head">
+      <button id="calPrev" class="iconbtn" aria-label="Previous month">&lsaquo;</button>
+      <h3 id="calTitle"></h3>
+      <button id="calNext" class="iconbtn" aria-label="Next month">&rsaquo;</button>
+    </div>
+    <div id="cal" class="cal-grid" role="grid" aria-label="Cycle calendar"></div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="sw period"></i>Period</span>
+      <span><i class="sw fertile"></i>Fertile window</span>
+      <span><i class="sw best"></i>Best days</span>
+      <span><i class="sw ov"></i>Ovulation</span>
+      <span><i class="sw today"></i>Today</span>
+    </div>
+  </section>
+
+  <section id="panel-semen" class="card panel" role="tabpanel" aria-labelledby="tab-semen" hidden>
+    <h2>Semen test</h2>
+    <p class="muted">Type in the numbers from your lab report. Leave blank what you do not have. Normal limits are the WHO 2021 lower limits.</p>
+    <div id="semenForm" class="form"></div>
+    <div id="semenSummary" class="summary" aria-live="polite"></div>
+
+    <div class="photo">
+      <h3>Photo check</h3>
+      <p class="muted">Upload a microscope photo of the sample. Claude reads what it can see. A photo cannot measure count, movement, or shape the way a lab does. The photo is sent to Claude for the reading and is not saved by this page.</p>
+      <p id="photoNote" class="hint">Loading photo check...</p>
+      <div id="photoTools" hidden>
+        <div class="photo-row">
+          <div class="field">
+            <label for="p_mag">Microscope magnification</label>
+            <select id="p_mag">
+              <option value="not sure">Not sure</option>
+              <option value="x100">x100</option>
+              <option value="x400">x400</option>
+              <option value="x1000 with oil">x1000 with oil</option>
+            </select>
+          </div>
+          <label class="btn ghost" for="p_file" id="p_pick">Choose photo</label>
+          <input id="p_file" class="vh" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <button id="p_go" class="btn" disabled>Check photo</button>
+          <button id="p_stop" class="btn ghost" hidden>Stop</button>
+        </div>
+        <img id="p_prev" class="prev" alt="Your uploaded sample photo" hidden>
+        <div id="p_out" class="result" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-advice" class="card panel" role="tabpanel" aria-labelledby="tab-advice" hidden>
+    <h2>What to do next</h2>
+    <div id="advice" class="adv"></div>
+  </section>
+</main>
+
+<script id="logic">
+const Core=(()=>{
+  const DAY=86400000;
+  const CHANCE=[10,16,14,27,31,33]; // days -5 to 0 before ovulation
+  const iso2n=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");if(!m)return null;const t=Date.UTC(+m[1],+m[2]-1,+m[3]);const d=new Date(t);if(d.getUTCMonth()!==+m[2]-1)return null;return Math.round(t/DAY)};
+  const n2iso=n=>new Date(n*DAY).toISOString().slice(0,10);
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const num=v=>{if(v===null||v===undefined||v==="")return null;const x=Number(v);return Number.isFinite(x)?x:null};
+
+  function buildCycles(i,todayN){
+    const out=[];
+    const K=clamp(Math.floor((todayN-i.start)/i.L)+4,6,40);
+    for(let k=0;k<K;k++){
+      const start=i.start+k*i.L, next=start+i.L;
+      let ov=next-i.luteal, fs=ov-5, fe=ov, bs=ov-2, be=ov, viaLH=false;
+      if(i.irregular){
+        const avg=Math.round((i.minL+i.maxL)/2);
+        ov=start+avg-i.luteal;
+        fs=start+i.minL-19; fe=start+i.maxL-12;
+        bs=Math.max(ov-2,fs); be=Math.min(ov,fe);
+      }
+      if(i.lh!=null&&i.lh>=start&&i.lh<next){ov=i.lh+1;fs=i.lh-4;fe=ov;bs=i.lh;be=ov;viaLH=true}
+      out.push({k,start,periodEnd:start+i.P-1,next,ov,fs,fe,bs,be,viaLH});
+    }
+    return out;
+  }
+  const pickFocus=(cycles,todayN)=>cycles.find(c=>c.fe>=todayN)||cycles[cycles.length-1];
+  function stage(c,t){
+    if(t<c.fs)return{code:"before",toWindow:c.fs-t,toBest:c.bs-t};
+    if(t<c.bs)return{code:"window",toBest:c.bs-t};
+    if(t<=c.be)return{code:t===c.ov?"ovulation":"best"};
+    return{code:"after"};
+  }
+  function periodStatus(cycles,t){
+    const d=t-cycles[0].next;
+    if(d<=0)return null;
+    return{kind:d<=14?"late":"old",days:d,due:cycles[0].next};
+  }
+  function cycleNotes(i){
+    const n=[];
+    if(i.L<21)n.push({tone:"warn",text:"A cycle shorter than 21 days is worth checking with a doctor."});
+    else if(i.L>35)n.push({tone:"warn",text:"A cycle longer than 35 days is worth checking with a doctor."});
+    else n.push({tone:"ok",text:"A "+i.L+"-day cycle is in the usual range of 21 to 35 days."});
+    if(i.P>7)n.push({tone:"warn",text:"Bleeding for more than 7 days is worth checking with a doctor."});
+    else n.push({tone:"ok",text:i.P+" days of bleeding is in the usual range of 2 to 7 days."});
+    if(i.irregular){
+      const v=i.maxL-i.minL;
+      n.push(v>7?{tone:"warn",text:"Your cycles vary by "+v+" days. That is called irregular. Use ovulation strips for better timing and mention it to a doctor."}
+                :{tone:"ok",text:"Your cycles vary by "+v+" days. Up to 7 days is normal."});
+    }
+    return n;
+  }
+  const SEMEN=[
+    {k:"vol",label:"Volume",unit:"mL",min:1.4,ref:"1.4 or more",max:30,step:"0.1"},
+    {k:"ph",label:"pH",unit:"",min:7.2,ref:"7.2 or more",max:14,step:"0.1"},
+    {k:"conc",label:"Sperm concentration",unit:"million/mL",min:16,ref:"16 or more",max:1000,step:"0.1"},
+    {k:"total",label:"Total sperm count",unit:"million",min:39,ref:"39 or more",max:5000,step:"0.1"},
+    {k:"motil",label:"Total motility",unit:"%",min:42,ref:"42 or more",max:100,step:"1"},
+    {k:"prog",label:"Progressive motility",unit:"%",min:30,ref:"30 or more",max:100,step:"1"},
+    {k:"morph",label:"Normal shape",unit:"%",min:4,ref:"4 or more",max:100,step:"1"},
+    {k:"vital",label:"Live sperm",unit:"%",min:54,ref:"54 or more",max:100,step:"1"}
+  ];
+  function evalSemen(v){
+    const rows=[];
+    for(const p of SEMEN){
+      let x=num(v[p.k]),computed=false;
+      if(p.k==="total"&&x===null){const a=num(v.vol),b=num(v.conc);if(a!==null&&b!==null){x=Math.round(a*b*10)/10;computed=true}}
+      if(x===null){rows.push({p,status:"none"});continue}
+      if(x<0||x>p.max){rows.push({p,x,status:"invalid",msg:"Check this number"});continue}
+      rows.push({p,x,computed,status:x>=p.min?"ok":"low"});
+    }
+    const notes=[];
+    const m=num(v.motil),pr=num(v.prog);
+    if(m!==null&&pr!==null&&pr>m){
+      const r=rows.find(r=>r.p.k==="prog");r.status="invalid";r.msg="Cannot be higher than total motility";
+      notes.push("Progressive motility cannot be higher than total motility. Check both numbers.");
+    }
+    const ab=num(v.abst);
+    if(ab!==null&&(ab<2||ab>7))notes.push("A standard test needs 2 to 7 days without ejaculation. "+ab+" days can change the result, so consider repeating it.");
+    const entered=rows.filter(r=>r.status==="ok"||r.status==="low");
+    const low=rows.filter(r=>r.status==="low");
+    return{rows,notes,entered,low,zero:num(v.conc)===0,level:entered.length===0?"none":(low.length?"low":"ok")};
+  }
+  return{DAY,CHANCE,SEMEN,iso2n,n2iso,clamp,num,buildCycles,pickFocus,stage,periodStatus,cycleNotes,evalSemen};
+})();
+</script>
+
+<script>
+(()=>{
+  const {DAY,CHANCE,SEMEN,iso2n,n2iso,clamp,num}=Core;
+  const $=(s,r)=>(r||document).querySelector(s);
+  const el=(tag,attrs,...kids)=>{
+    const e=document.createElement(tag);
+    if(attrs)for(const[k,v]of Object.entries(attrs)){
+      if(v==null||v===false)continue;
+      if(k==="class")e.className=v;
+      else if(k==="text")e.textContent=v;
+      else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);
+      else e.setAttribute(k,v===true?"":v);
+    }
+    for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}
+    return e;
+  };
+  const now=new Date();
+  const todayN=Math.round(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate())/DAY);
+  const fmt=n=>new Date(n*DAY).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"});
+  const short=n=>new Date(n*DAY).toLocaleDateString("en-GB",{day:"numeric",month:"short",timeZone:"UTC"});
+  const range=(a,b)=>a===b?fmt(a):fmt(a)+" to "+fmt(b);
+  const days=n=>n===1?"1 day":n+" days";
+
+  const KEY="conceptionPlanner.v1";
+  const defaults=()=>({last:n2iso(todayN-10),L:28,P:5,luteal:14,lh:"",irr:false,minL:26,maxL:31,
+    semen:{abst:"3",vol:"2.8",ph:"7.6",conc:"32",total:"",motil:"52",prog:"38",morph:"5",vital:"66"},
+    exCycle:true,exSemen:true});
+  const load=()=>{try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&typeof s==="object"&&typeof s.last==="string"&&s.semen)return s}catch(e){}return null};
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+  let S=load()||defaults();
+  let M=null, cal=null, photoRes=null;
+
+  /* ---------- model ---------- */
+  function model(){
+    const start=iso2n(S.last);
+    if(start===null)return{err:"Enter the first day of your last period to see your best days."};
+    if(start>todayN)return{err:"That date is in the future. Enter the first day of your most recent period."};
+    const L=clamp(Math.round(num(S.L)??28),18,60);
+    const P=clamp(Math.round(num(S.P)??5),1,12);
+    const luteal=clamp(Math.round(num(S.luteal)??14),10,16);
+    const msgs=[];
+    let lh=iso2n(S.lh);
+    if(S.lh&&(lh===null||lh<start||lh>todayN)){msgs.push("The strip date must be after your period started and not in the future. It was ignored.");lh=null}
+    let irr=false,minL=null,maxL=null;
+    if(S.irr){
+      minL=clamp(Math.round(num(S.minL)??0),18,60);maxL=clamp(Math.round(num(S.maxL)??0),18,60);
+      if(num(S.minL)!==null&&num(S.maxL)!==null&&minL<=maxL)irr=true;
+      else msgs.push("Enter a shortest and longest cycle, with the shortest not above the longest.");
+    }
+    const inp={start,L,P,luteal,lh,irregular:irr,minL,maxL};
+    const cycles=Core.buildCycles(inp,todayN);
+    const focus=Core.pickFocus(cycles,todayN);
+    return{inp,cycles,focus,stage:Core.stage(focus,todayN),late:Core.periodStatus(cycles,todayN),msgs,irr};
+  }
+
+  /* ---------- answer card ---------- */
+  function stageText(st){
+    switch(st.code){
+      case"before":return"Your fertile window starts in "+days(st.toWindow)+". The best days start in "+days(st.toBest)+".";
+      case"window":return st.toBest===1?"You are in your fertile window. The best days start tomorrow.":"You are in your fertile window. The best days start in "+days(st.toBest)+".";
+      case"best":return"Today is one of your best days.";
+      case"ovulation":return"Ovulation is expected today. This is one of your best days.";
+      default:return"The best days for this cycle have passed. Your fertile window is ending.";
+    }
+  }
+  function renderAnswer(){
+    const box=$("#answer");box.replaceChildren();
+    if(M.err){box.append(el("p",{class:"label",text:"Best days to have sex"}),el("p",{class:"status",text:M.err}));return}
+    const c=M.focus;
+    const sem=Core.evalSemen(S.semen);
+    box.append(
+      el("div",{class:"eyebrow-row"},el("p",{class:"label",text:c.viaLH?"Best days, from your ovulation strip":"Best days to have sex"}),S.exCycle&&el("span",{class:"pill ex",text:"Example date"})),
+      el("p",{class:"big",text:c.bs===c.be?short(c.bs):short(c.bs)+" to "+short(c.be)}),
+      el("p",{class:"status",text:stageText(M.stage)})
+    );
+    if(M.late){
+      box.append(M.late.kind==="late"
+        ?el("div",{class:"banner warn"},el("strong",{text:"Your period was due "+fmt(M.late.due)}),el("span",{text:"It is "+days(M.late.days)+" late. If it has not started, take a pregnancy test with your first urine of the day. If it has started, enter its first day in My cycle."}))
+        :el("div",{class:"banner warn"},el("strong",{text:"Update your last period date"}),el("span",{text:"The date you entered is old, so these dates are estimates. Enter the first day of your most recent period."})));
+    }
+    box.append(el("dl",{class:"facts"},
+      el("div",null,el("dt",{text:"Fertile window"}),el("dd",{text:range(c.fs,c.fe)})),
+      el("div",null,el("dt",{text:c.viaLH?"Ovulation (from strip)":"Ovulation (estimate)"}),el("dd",{text:fmt(c.ov)})),
+      el("div",null,el("dt",{text:"Next period due"}),el("dd",{text:fmt(c.next)}))
+    ));
+    // chance chart: last six days up to ovulation
+    const bars=el("div",{class:"bars",role:"img","aria-label":"Chance of pregnancy for sex on each of the six days up to ovulation"});
+    for(let j=0;j<6;j++){
+      const d=c.ov-5+j,best=d>=c.bs&&d<=c.be;
+      const dd=new Date(d*DAY);
+      bars.append(el("div",{class:"bar"+(best?" best":"")},
+        el("span",{class:"v",text:CHANCE[j]+"%"}),
+        el("div",{class:"col",style:"height:"+Math.round(96*CHANCE[j]/33)+"px"}),
+        el("div",{class:"d"},el("span",{text:String(dd.getUTCDate())}),el("span",{text:dd.toLocaleDateString("en-GB",{month:"short",timeZone:"UTC"})}))
+      ));
+    }
+    box.append(el("div",{class:"chart"},
+      el("p",{class:"label",text:"Chance of pregnancy by day of sex"}),bars,
+      el("p",{class:"caption",text:"Average figures from a published study of couples (Wilcox, 1995). The last bar is the estimated ovulation day. Your own chance will differ."})));
+    // semen line
+    let pill;
+    if(S.exSemen)pill=el("span",{class:"pill ex",text:"Semen report: example values"});
+    else if(sem.level==="none")pill=el("span",{class:"pill",text:"Semen report: not entered"});
+    else if(sem.level==="ok")pill=el("span",{class:"pill ok",text:"Semen report: all "+sem.entered.length+" values in range"});
+    else pill=el("span",{class:"pill warn",text:"Semen report: "+sem.low.length+" below range"});
+    box.append(el("div",{class:"semrow"},pill,el("button",{class:"linkbtn",onclick:()=>showTab("semen")},S.exSemen||sem.level==="none"?"Enter semen report":"View details")));
+  }
+
+  /* ---------- exNote ---------- */
+  function renderNote(){
+    const n=$("#exNote");
+    let t="";
+    if(S.exCycle&&S.exSemen)t="Example values are shown. Enter your last period date in My cycle and your report in Semen test to get your own plan.";
+    else if(S.exCycle)t="The last period date is an example. Change it to your own date in My cycle.";
+    else if(S.exSemen)t="The semen numbers are examples. Tap any field in Semen test to clear them and enter your report.";
+    n.hidden=!t;n.textContent=t;
+  }
+
+  /* ---------- cycle panel ---------- */
+  function renderCycleMsg(){
+    const m=$("#cycleMsg");
+    const text=M.err?"":M.msgs.join(" ");
+    m.hidden=!text;m.textContent=text;
+    const ul=$("#cycleNotes");ul.replaceChildren();
+    if(!M.err)for(const n of Core.cycleNotes({L:M.inp.L,P:M.inp.P,irregular:M.irr,minL:M.inp.minL,maxL:M.inp.maxL}))ul.append(el("li",{class:n.tone,text:n.text}));
+  }
+  const monthIdx=n=>{const d=new Date(n*DAY);return d.getUTCFullYear()*12+d.getUTCMonth()};
+  function calBounds(){
+    const lo=Math.max(monthIdx(M.inp.start),monthIdx(todayN)-3);
+    const hi=monthIdx(M.cycles[M.cycles.length-1].next);
+    return[lo,hi];
+  }
+  function classify(dn){
+    for(const c of M.cycles)if(dn>=c.start&&dn<=c.periodEnd)return{t:"period",ov:dn===c.ov};
+    let t="",ov=false;
+    for(const c of M.cycles){
+      if(dn>=c.bs&&dn<=c.be)t="best";
+      else if(!t&&dn>=c.fs&&dn<=c.fe)t="fertile";
+      if(dn===c.ov)ov=true;
+    }
+    return{t,ov};
+  }
+  const LABEL={period:"period",best:"best day",fertile:"fertile window","":""};
+  function renderCal(recenter){
+    const grid=$("#cal");grid.replaceChildren();
+    if(M.err){$("#calTitle").textContent="";$("#calPrev").disabled=true;$("#calNext").disabled=true;return}
+    const[lo,hi]=calBounds();
+    if(recenter||cal==null)cal=monthIdx(M.focus.bs);
+    cal=clamp(cal,lo,hi);
+    $("#calPrev").disabled=cal<=lo;$("#calNext").disabled=cal>=hi;
+    const y=Math.floor(cal/12),mo=cal%12;
+    $("#calTitle").textContent=new Date(Date.UTC(y,mo,1)).toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"});
+    for(const d of["Sun","Mon","Tue","Wed","Thu","Fri","Sat"])grid.append(el("div",{class:"dow",text:d}));
+    const first=new Date(Date.UTC(y,mo,1)).getUTCDay();
+    const count=new Date(Date.UTC(y,mo+1,0)).getUTCDate();
+    for(let b=0;b<first;b++)grid.append(el("div",{class:"day blank"}));
+    const firstN=Math.round(Date.UTC(y,mo,1)/DAY);
+    for(let i=0;i<count;i++){
+      const dn=firstN+i,k=classify(dn);
+      const lab=short(dn)+(LABEL[k.t]?", "+LABEL[k.t]:"")+(k.ov?", ovulation":"")+(dn===todayN?", today":"");
+      grid.append(el("div",{class:"day"+(k.t?" "+k.t:"")+(k.ov?" ov":"")+(dn===todayN?" today":""),"aria-label":lab,title:lab,text:String(i+1)}));
+    }
+  }
+
+  /* ---------- semen panel ---------- */
+  function buildSemenForm(){
+    const f=$("#semenForm");
+    f.append(el("div",{class:"field"},
+      el("label",{for:"s_abst",text:"Days without ejaculation before the test"}),
+      el("input",{id:"s_abst",type:"number",inputmode:"numeric",min:"0",max:"30",step:"1"}),
+      el("span",{class:"hint",text:"Standard is 2 to 7 days."})));
+    for(const p of SEMEN){
+      f.append(el("div",{class:"field"},
+        el("label",{for:"s_"+p.k,text:p.label+(p.unit?" ("+p.unit+")":"")}),
+        el("input",{id:"s_"+p.k,type:"number",inputmode:"decimal",min:"0",step:p.step,placeholder:p.k==="total"?"Auto":""}),
+        el("div",{class:"meta"},el("span",{class:"hint",text:"Normal: "+p.ref}),el("span",{class:"stat",id:"st_"+p.k}))));
+    }
+  }
+  function renderSemen(){
+    const ev=Core.evalSemen(S.semen);
+    for(const r of ev.rows){
+      const s=$("#st_"+r.p.k);
+      s.className="stat "+r.status;
+      const base={none:"",ok:"Within range",low:"Below range",invalid:r.msg||"Check this number"}[r.status];
+      s.textContent=base+(r.computed&&base?" (calculated)":"");
+      if(r.p.k==="total")$("#s_total").placeholder=r.computed?String(r.x):"Auto";
+    }
+    const box=$("#semenSummary");box.replaceChildren();
+    box.className="summary";
+    if(ev.level==="none"){
+      box.append(el("p",{text:"Enter values from your report to see how they compare."}));
+    }else if(ev.level==="ok"){
+      box.classList.add("ok");
+      box.append(el("strong",{text:"All "+ev.entered.length+" values are within range"}),
+        el("p",{text:"One normal result is reassuring but does not guarantee fertility. Results change from test to test."}));
+    }else{
+      box.classList.add("low");
+      box.append(el("strong",{text:ev.low.length+" of "+ev.entered.length+" values are below the lower limit"}),
+        el("ul",null,ev.low.map(r=>el("li",{text:r.p.label+": "+r.x+(r.p.unit?" "+r.p.unit:"")+" (normal "+r.p.ref+")"}))),
+        el("p",{text:"Below range does not mean you cannot father a child. Repeat the test after 4 to 12 weeks and talk to a urologist or fertility doctor."}));
+    }
+    if(ev.zero)box.append(el("p",{text:"No sperm found in the sample needs a doctor visit soon."}));
+    for(const n of ev.notes)box.append(el("p",{text:n}));
+  }
+
+  /* ---------- advice ---------- */
+  function renderAdvice(){
+    const box=$("#advice");box.replaceChildren();
+    const next=[];
+    if(M.err)next.push("Enter the first day of your last period in My cycle to get your timing.");
+    else{
+      const c=M.focus;
+      if(M.late&&M.late.kind==="late")next.push("Your period is late. Take a pregnancy test with your first urine of the day, or enter the start date if it has come.");
+      next.push("Have sex every 1 to 2 days from "+fmt(c.fs)+" to "+fmt(c.fe)+". If you can only choose a few days, pick "+range(c.bs,c.be)+".");
+      if(c.viaLH)next.push("Your positive ovulation strip on "+fmt(c.bs)+" points to ovulation on "+fmt(c.ov)+". Have sex on both days.");
+      else next.push(c.fs<=todayN
+        ?"Use an ovulation (LH) strip once a day from now until one turns positive. Then enter that date in More options."
+        :"Start ovulation (LH) strips on "+fmt(c.fs)+". A positive strip means ovulation is likely within 1 to 2 days. Enter its date in More options to sharpen these dates.");
+      if(M.irr)next.push("Your cycle length changes, so the window is wide. Ovulation strips will be more reliable than the calendar.");
+      next.push("If your period is late, take a pregnancy test from "+fmt(c.next)+", using your first urine of the day.");
+    }
+    const sem=Core.evalSemen(S.semen);
+    if(S.exSemen)next.push("The semen numbers shown are examples. Enter your own report in Semen test to get advice on it.");
+    else if(sem.level==="none")next.push("Add your semen report in Semen test to get advice for both of you.");
+    else if(sem.level==="ok")next.push("Your semen values are within the WHO range. One normal test is reassuring but does not guarantee fertility.");
+    else{
+      next.push("These semen values are below range: "+sem.low.map(r=>r.p.label.toLowerCase()).join(", ")+". This does not rule out pregnancy. Keep the same timing, repeat the test in 4 to 12 weeks, and see a urologist or fertility doctor.");
+      if(sem.zero)next.push("No sperm in the sample needs a doctor visit soon.");
+    }
+    if(photoRes&&photoRes.is_sample_image){
+      if(photoRes.sperm_seen==="none"||photoRes.sperm_seen==="few")next.push("Your photo showed few or no sperm. Get a lab semen analysis soon to check.");
+      else next.push("Your photo looks reasonable at first glance, but only a lab test can confirm count and movement.");
+    }
+    box.append(
+      el("h3",{text:"Your next steps"}),el("ul",null,next.map(t=>el("li",{text:t}))),
+      el("h3",{text:"Habits that help"}),
+      el("ul",null,[
+        "Have sex every 1 to 2 days in the fertile window. Saving up for many days lowers sperm movement.",
+        "The woman can start folic acid 400 mcg daily before trying and continue in early pregnancy.",
+        "Avoid smoking, limit alcohol, and keep a healthy weight and regular sleep.",
+        "Keep the testicles cool. Avoid hot baths and saunas.",
+        "Use no lubricant, or one sold as fertility friendly. Saliva and many lubricants slow sperm.",
+        "Sperm take about 3 months to renew, so changes show up in a repeat test after about 3 months."
+      ].map(t=>el("li",{text:t}))),
+      el("h3",{text:"See a doctor if"}),
+      el("ul",null,[
+        "You have tried for 12 months without pregnancy, or 6 months if the woman is 35 or older.",
+        "Periods are shorter than 21 days, longer than 35 days, very painful, or missing.",
+        "Semen values are below range or no sperm were found.",
+        "Either of you has a known medical condition that may affect fertility."
+      ].map(t=>el("li",{text:t}))),
+      el("p",{class:"disc",text:"This planner gives estimates and general information. It is not medical advice, and it must not be used as birth control."})
+    );
+  }
+
+  /* ---------- tabs ---------- */
+  const tabs=[...document.querySelectorAll(".tab")];
+  function showTab(id){
+    tabs.forEach(t=>{const on=t.dataset.tab===id;t.setAttribute("aria-selected",String(on));t.tabIndex=on?0:-1;$("#panel-"+t.dataset.tab).hidden=!on});
+  }
+  tabs.forEach((t,i)=>{
+    t.addEventListener("click",()=>showTab(t.dataset.tab));
+    t.addEventListener("keydown",e=>{
+      if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;
+      const n=tabs[(i+(e.key==="ArrowRight"?1:tabs.length-1))%tabs.length];
+      n.focus();showTab(n.dataset.tab);
+    });
+  });
+
+  /* ---------- wiring ---------- */
+  function syncCycleInputs(){
+    $("#f_last").value=S.last||"";$("#f_L").value=S.L;$("#f_P").value=S.P;$("#f_luteal").value=S.luteal;
+    $("#f_lh").value=S.lh||"";$("#f_irr").checked=!!S.irr;$("#f_minL").value=S.minL;$("#f_maxL").value=S.maxL;
+    $("#irrBox").hidden=!S.irr;
+    $("#f_last").max=n2iso(todayN);$("#f_lh").max=n2iso(todayN);
+  }
+  function syncSemenInputs(){
+    for(const k of Object.keys(S.semen)){const i=$("#s_"+k);if(i)i.value=S.semen[k]}
+  }
+  function updateAll(recenter){
+    M=model();renderNote();renderAnswer();renderCycleMsg();renderCal(recenter);renderSemen();renderAdvice();
+  }
+  const cycleMap={f_last:"last",f_L:"L",f_P:"P",f_luteal:"luteal",f_lh:"lh",f_minL:"minL",f_maxL:"maxL"};
+  for(const[id,key]of Object.entries(cycleMap)){
+    $("#"+id).addEventListener("input",e=>{
+      S[key]=e.target.value;
+      if(id==="f_last")S.exCycle=false;
+      save();updateAll(true);
+    });
+  }
+  $("#f_irr").addEventListener("change",e=>{S.irr=e.target.checked;$("#irrBox").hidden=!S.irr;save();updateAll(true)});
+  $("#calPrev").addEventListener("click",()=>{cal-=1;renderCal(false)});
+  $("#calNext").addEventListener("click",()=>{cal+=1;renderCal(false)});
+
+  buildSemenForm();
+  $("#panel-semen").addEventListener("focusin",e=>{
+    if(S.exSemen&&e.target.matches&&e.target.matches("#semenForm input")){
+      S.exSemen=false;for(const k of Object.keys(S.semen))S.semen[k]="";
+      syncSemenInputs();save();updateAll(false);
+    }
+  });
+  $("#semenForm").addEventListener("input",e=>{
+    const id=e.target.id||"";
+    if(id.startsWith("s_")){S.semen[id.slice(2)]=e.target.value;S.exSemen=false;save();renderNote();renderSemen();renderAnswer();renderAdvice()}
+  });
+
+  syncCycleInputs();syncSemenInputs();updateAll(true);
+
+  /* ---------- photo check ---------- */
+  (async()=>{
+    const note=$("#photoNote"),tools=$("#photoTools");
+    let sample=null;
+    try{sample=await window.claude?.use?.("sample")}catch(e){}
+    if(!sample){note.textContent="Photo check is not available in this view. Ask your lab for a full semen analysis.";return}
+    let lim=null;
+    try{lim=await sample.limits()}catch(e){}
+    if(!lim||!lim.images){note.textContent="This view cannot send photos, so the photo check is off. Ask your lab for a full semen analysis.";return}
+    note.hidden=true;tools.hidden=false;
+    const fileIn=$("#p_file"),go=$("#p_go"),stop=$("#p_stop"),out=$("#p_out"),prev=$("#p_prev");
+    fileIn.accept=lim.images.mediaTypes.join(",");
+    let file=null,ctl=null;
+    const say=(kind,text)=>{out.replaceChildren(el("p",{class:kind==="err"?"hint":"muted",text}))};
+    fileIn.addEventListener("change",()=>{
+      const f=fileIn.files&&fileIn.files[0];
+      file=null;go.disabled=true;prev.hidden=true;out.replaceChildren();
+      if(!f)return;
+      if(!lim.images.mediaTypes.includes(f.type)){say("err","Use a JPEG, PNG, WebP or GIF photo.");return}
+      if(f.size>lim.images.maxInputBytes){say("err","This photo is too large. Use one under "+Math.floor(lim.images.maxInputBytes/1048576)+" MB.");return}
+      file=f;go.disabled=false;
+      const r=new FileReader();r.onload=()=>{prev.src=r.result;prev.hidden=false};r.readAsDataURL(f);
+    });
+    const L={
+      quality:{good:"Good",fair:"Fair",poor:"Poor"},
+      seen:{none:"None seen",few:"Few",some:"Some",many:"Many",not_judgeable:"Cannot judge"},
+      clump:{none:"None",some:"Some",marked:"Marked",not_judgeable:"Cannot judge"},
+      debris:{none:"None",some:"Some",many:"Many",not_judgeable:"Cannot judge"},
+      shape:{none_noticed:"None noticed",possible:"Possible",not_judgeable:"Cannot judge"}
+    };
+    const lab=(m,v)=>(m[v]||"Cannot judge");
+    const errCopy=c=>({
+      not_granted:"Photo check was not allowed for this page. Reload the page to be asked again.",
+      sampling_disabled:"Claude is not available on this account, so the photo check is off.",
+      rate_limited:"Too many requests or your usage limit is reached. Try again later.",
+      session_expired:"Please sign in again and retry.",
+      image_rejected:"This file cannot be used. Try a clear JPEG or PNG photo.",
+      refused:"Claude could not check this image. Try a clear microscope photo.",
+      invalid_json:"The reading came back in a form the page could not use. Try again.",
+      images_unavailable:"This view cannot send photos."
+    }[c]||"Something went wrong. Try again.");
+    go.addEventListener("click",async()=>{
+      if(!file)return;
+      ctl=new AbortController();
+      go.disabled=true;stop.hidden=false;say("info","Reading the photo...");
+      const prompt=
+"A person trying to conceive uploaded a photo described as a microscope view of a semen sample. Magnification: "+$("#p_mag").value+".\n"+
+"Give a careful visual read only.\n"+
+"- If the image is not a microscope image of a semen or sperm sample, set is_sample_image to false, say so briefly in summary, and use not_judgeable for the other fields.\n"+
+"- A still photo cannot measure concentration, motility or morphology to lab standard. Give no numbers for these and no diagnosis.\n"+
+"- Describe only what is visible: how many sperm-like cells, clumping, debris or round cells, whether heads and tails are visible, and image quality (focus, light, magnification).\n"+
+"Reply with only this JSON:\n"+
+'{"is_sample_image":true,"image_quality":"good|fair|poor","sperm_seen":"none|few|some|many|not_judgeable","clumping":"none|some|marked|not_judgeable","debris_or_round_cells":"none|some|many|not_judgeable","visible_shape_concerns":"none_noticed|possible|not_judgeable","summary":"2 to 3 plain sentences","limits":"one sentence on what this photo cannot show","next_step":"one sentence on what to do next"}';
+      try{
+        const r=await sample.json(prompt,{images:file,signal:ctl.signal});
+        photoRes=r&&typeof r==="object"?r:null;
+        out.replaceChildren();
+        if(!photoRes){say("err","No reading was returned. Try again.")}
+        else if(photoRes.is_sample_image===false){
+          out.append(el("p",{text:String(photoRes.summary||"This does not look like a microscope image of a semen sample.")}));
+        }else{
+          out.append(
+            el("dl",{class:"obs"},
+              el("div",null,el("dt",{text:"Image quality"}),el("dd",{text:lab(L.quality,photoRes.image_quality)})),
+              el("div",null,el("dt",{text:"Sperm seen"}),el("dd",{text:lab(L.seen,photoRes.sperm_seen)})),
+              el("div",null,el("dt",{text:"Clumping"}),el("dd",{text:lab(L.clump,photoRes.clumping)})),
+              el("div",null,el("dt",{text:"Debris or round cells"}),el("dd",{text:lab(L.debris,photoRes.debris_or_round_cells)})),
+              el("div",null,el("dt",{text:"Shape concerns"}),el("dd",{text:lab(L.shape,photoRes.visible_shape_concerns)}))),
+            el("p",{text:String(photoRes.summary||"")}),
+            photoRes.limits&&el("p",{class:"hint",text:String(photoRes.limits)}),
+            photoRes.next_step&&el("p",{text:String(photoRes.next_step)})
+          );
+        }
+        out.append(el("p",{class:"caption",text:"This is a visual reading by Claude, not a lab test."}));
+        renderAdvice();
+      }catch(e){
+        if(e&&e.code==="cancelled")out.replaceChildren();
+        else say("err",errCopy(e&&e.code));
+      }finally{
+        go.disabled=!file;stop.hidden=true;ctl=null;
+      }
+    });
+    stop.addEventListener("click",()=>{ctl&&ctl.abort()});
+  })();
+})();
+</script>
+
+</body></html>
